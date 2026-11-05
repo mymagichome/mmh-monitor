@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "MMH Monitor",
+        "description": "Configure o monitoramento de saúde deste Home Assistant.",
+        "data": {
+          "site_slug": "Identificador do site"
+        },
+        "data_description": {
+          "site_slug": "Identificador do cliente em minúsculas, sem espaços (ex.: diegopasa)."
+        }
+      }
+    },
+    "error": {
+      "invalid_slug": "Use apenas letras minúsculas, números, hífen e sublinhado."
+    },
+    "abort": {
+      "single_instance_allowed": "Já configurado. Só é permitida uma única configuração."
+    }
+  }
+}
