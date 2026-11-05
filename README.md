@@ -1,5 +1,9 @@
 # MMH Monitor
 
+[![Validate](https://github.com/mymagichome/mmh-monitor/actions/workflows/validate.yml/badge.svg)](https://github.com/mymagichome/mmh-monitor/actions/workflows/validate.yml)
+[![Tests](https://github.com/mymagichome/mmh-monitor/actions/workflows/tests.yml/badge.svg)](https://github.com/mymagichome/mmh-monitor/actions/workflows/tests.yml)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
+
 Integração customizada do Home Assistant que monitora a saúde de cada instância HA de cliente da My Magic Home (MMH). Ela envia métricas para o InfluxDB central e um heartbeat para o Uptime Kuma.
 
 > **Status:** em desenvolvimento (rumo à `v0.1.0`). Ainda não deve ser instalada em clientes.
