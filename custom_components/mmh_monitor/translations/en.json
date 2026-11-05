@@ -8,7 +8,7 @@
           "site_slug": "Site identifier"
         },
         "data_description": {
-          "site_slug": "Lowercase identifier of the customer site, without spaces (e.g. diegopasa)."
+          "site_slug": "Lowercase identifier of the customer site, without spaces (e.g. cliente-exemplo)."
         }
       }
     },

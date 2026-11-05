@@ -8,7 +8,7 @@
           "site_slug": "Identificador do site"
         },
         "data_description": {
-          "site_slug": "Identificador do cliente em minúsculas, sem espaços (ex.: diegopasa)."
+          "site_slug": "Identificador do cliente em minúsculas, sem espaços (ex.: cliente-exemplo)."
         }
       }
     },

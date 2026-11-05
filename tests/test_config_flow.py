@@ -19,11 +19,11 @@ async def test_user_flow_success(hass: HomeAssistant) -> None:
     assert result["step_id"] == "user"
 
     result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {CONF_SITE_SLUG: "diegopasa"}
+        result["flow_id"], {CONF_SITE_SLUG: "cliente-exemplo"}
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["title"] == "MMH Monitor (diegopasa)"
-    assert result["data"] == {CONF_SITE_SLUG: "diegopasa"}
+    assert result["title"] == "MMH Monitor (cliente-exemplo)"
+    assert result["data"] == {CONF_SITE_SLUG: "cliente-exemplo"}
 
 
 async def test_user_flow_invalid_slug(hass: HomeAssistant) -> None:

@@ -13,6 +13,17 @@ Integração customizada do Home Assistant que monitora a saúde de cada instân
 
 Versão mínima do Home Assistant: **2026.3.4**.
 
+## Segurança e privacidade
+
+Este repositório é público e contém **apenas código**. Nenhum dado de cliente, token ou endereço da base central fica aqui.
+
+- O token do InfluxDB, a URL do InfluxDB, a URL do Kuma e o identificador do site são informados na interface, durante a instalação, e ficam salvos só no Home Assistant de cada cliente.
+- Use **um token por cliente**, **somente de escrita** e restrito ao bucket de saúde. Um token vazado não lê dados e pode ser revogado individualmente.
+- Use **um monitor Push do Kuma por cliente**.
+- O token e a URL do Kuma nunca são gravados em log e são redigidos no diagnóstico.
+- O JSON de limites remotos (que pode listar sites) **não** deve ser hospedado neste repositório nem em local público.
+- **Nunca** cole logs, diagnósticos ou prints de clientes em issues ou pull requests deste repositório.
+
 ## Desenvolvimento
 
 ```bash

@@ -11,7 +11,7 @@ from custom_components.mmh_monitor.const import CONF_SITE_SLUG, DOMAIN
 
 async def test_setup_and_unload(hass: HomeAssistant) -> None:
     """The entry loads and unloads cleanly."""
-    entry = MockConfigEntry(domain=DOMAIN, data={CONF_SITE_SLUG: "diegopasa"})
+    entry = MockConfigEntry(domain=DOMAIN, data={CONF_SITE_SLUG: "cliente-exemplo"})
     entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(entry.entry_id)
