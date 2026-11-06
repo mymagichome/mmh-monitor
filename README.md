@@ -105,6 +105,8 @@ Os atributos longos (`details`, `mensagem`, `motivos`) não são gravados no his
 
 Uma checagem que não se aplica ao site (sem `/proc`, banco MariaDB, sem Zigbee…) aparece como **não monitorado** e não afeta as demais.
 
+Logo após o HA iniciar, as checagens que dependem de outras integrações (`integrations`, `unavailable_entities`, `zigbee`) ficam como não monitorado por 5 minutos, para um reinício não gerar alarme falso.
+
 | Chave | Mede | Atenção | Crítico |
 |---|---|---|---|
 | `integrations` | Integrações com falha de carregamento (ignora as desabilitadas) | 1 | 3 |

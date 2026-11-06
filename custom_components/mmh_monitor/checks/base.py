@@ -21,6 +21,11 @@ class BaseCheck(ABC):
     #: unmonitored when the check raises.
     keys: tuple[str, ...] = ()
 
+    #: True for checks that depend on other integrations having loaded. They
+    #: are reported as not monitored while Home Assistant is starting, so a
+    #: restart does not produce false alarms.
+    wait_for_startup: bool = False
+
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         """Initialize the check."""
         self.hass = hass
