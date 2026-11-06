@@ -1,6 +1,6 @@
 """Health thresholds.
 
-Phase 2 ships the built-in defaults and level calculation. Remote thresholds
+Phase 3 ships the built-in defaults and level calculation. Remote thresholds
 (fetched from ``thresholds_url`` and cached) are added in phase 4.
 """
 
@@ -31,6 +31,15 @@ class Threshold:
 
 DEFAULT_THRESHOLDS: dict[str, Threshold] = {
     "integrations": Threshold(atencao=1, critico=3),
+    "unavailable_entities": Threshold(atencao=5, critico=15),  # percent
+    "system_log": Threshold(atencao=5, critico=20),  # errors per cycle
+    "disk_use": Threshold(atencao=75, critico=90),  # percent
+    "memory_use": Threshold(atencao=85, critico=95),  # percent
+    "load_1m": Threshold(atencao=1.5, critico=3.0),  # load per CPU
+    "recorder": Threshold(atencao=2000, critico=5000),  # MB
+    "backup": Threshold(atencao=48, critico=168),  # hours
+    "updates": Threshold(atencao=1),  # never critical
+    "zigbee": Threshold(critico=1),  # coordinator problems
 }
 
 

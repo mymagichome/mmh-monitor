@@ -79,5 +79,61 @@
     "error": {
       "invalid_url": "Informe uma URL válida com http:// ou https://."
     }
+  },
+  "entity": {
+    "sensor": {
+      "health": {
+        "name": "Saúde",
+        "state": {
+          "ok": "OK",
+          "atencao": "Atenção",
+          "critico": "Crítico"
+        }
+      },
+      "integrations": {
+        "name": "Integrações com falha"
+      },
+      "unavailable_entities": {
+        "name": "Entidades indisponíveis"
+      },
+      "disk_use": {
+        "name": "Uso de disco"
+      },
+      "memory_use": {
+        "name": "Uso de memória"
+      },
+      "load_1m": {
+        "name": "Carga de CPU por núcleo"
+      },
+      "host_uptime": {
+        "name": "Tempo ligado do host"
+      },
+      "ha_uptime": {
+        "name": "Tempo ligado do Home Assistant"
+      },
+      "system_log": {
+        "name": "Erros no log"
+      },
+      "recorder": {
+        "name": "Tamanho do banco de dados"
+      },
+      "updates": {
+        "name": "Atualizações pendentes"
+      },
+      "backup": {
+        "name": "Tempo desde o último backup"
+      },
+      "zigbee": {
+        "name": "Problemas no coordenador Zigbee"
+      }
+    },
+    "binary_sensor": {
+      "problema": {
+        "name": "Problema"
+      },
+      "envio_central": {
+        "name": "Envio à central"
+      }
+    }
   }
 }
