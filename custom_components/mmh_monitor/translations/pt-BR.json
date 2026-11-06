@@ -3,20 +3,81 @@
     "step": {
       "user": {
         "title": "MMH Monitor",
-        "description": "Configure o monitoramento de saúde deste Home Assistant.",
+        "description": "Conecte este Home Assistant ao monitoramento central da MMH. Um ponto de teste é gravado no InfluxDB antes de salvar.",
         "data": {
-          "site_slug": "Identificador do site"
+          "site_slug": "Identificador do site",
+          "influx_url": "URL do InfluxDB",
+          "influx_org": "Organização do InfluxDB",
+          "influx_bucket": "Bucket do InfluxDB",
+          "influx_token": "Token do InfluxDB",
+          "kuma_push_url": "URL de push do Uptime Kuma"
         },
         "data_description": {
-          "site_slug": "Identificador do cliente em minúsculas, sem espaços (ex.: cliente-exemplo)."
+          "site_slug": "Identificador do cliente em minúsculas, sem espaços (ex.: cliente-exemplo).",
+          "influx_url": "Endereço do InfluxDB central, incluindo https://.",
+          "influx_org": "Organização configurada no InfluxDB.",
+          "influx_bucket": "Bucket que recebe os dados de saúde.",
+          "influx_token": "Token somente de escrita criado para este site.",
+          "kuma_push_url": "Opcional. URL do monitor Push deste site no Uptime Kuma."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigurar MMH Monitor",
+        "description": "Atualize a conexão com a central para o site {site}.",
+        "data": {
+          "influx_url": "URL do InfluxDB",
+          "influx_org": "Organização do InfluxDB",
+          "influx_bucket": "Bucket do InfluxDB",
+          "influx_token": "Token do InfluxDB",
+          "kuma_push_url": "URL de push do Uptime Kuma"
+        },
+        "data_description": {
+          "influx_url": "Endereço do InfluxDB central, incluindo https://.",
+          "influx_org": "Organização configurada no InfluxDB.",
+          "influx_bucket": "Bucket que recebe os dados de saúde.",
+          "influx_token": "Deixe vazio para manter o token atual.",
+          "kuma_push_url": "Opcional. URL do monitor Push deste site no Uptime Kuma."
         }
       }
     },
     "error": {
-      "invalid_slug": "Use apenas letras minúsculas, números, hífen e sublinhado."
+      "invalid_slug": "Use apenas letras minúsculas, números, hífen e sublinhado.",
+      "invalid_url": "Informe uma URL válida com http:// ou https://.",
+      "cannot_connect": "Falha ao conectar ao InfluxDB",
+      "invalid_auth": "Token inválido ou sem permissão de escrita",
+      "bucket_not_found": "O InfluxDB não encontrou esta organização ou bucket.",
+      "unknown": "Erro inesperado"
     },
     "abort": {
-      "single_instance_allowed": "Já configurado. Só é permitida uma única configuração."
+      "single_instance_allowed": "Já configurado. Só é permitida uma única configuração.",
+      "already_configured": "Este serviço já está configurado",
+      "reconfigure_successful": "Reconfiguração concluída com sucesso"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opções do MMH Monitor",
+        "data": {
+          "scan_interval": "Intervalo de coleta",
+          "thresholds_url": "URL dos limites remotos",
+          "ignored_entities": "Entidades ignoradas",
+          "zigbee_entities": "Entidades do coordenador Zigbee",
+          "backup_entity": "Entidade do último backup",
+          "kuma_down_on_critical": "Informar falha ao Uptime Kuma quando crítico"
+        },
+        "data_description": {
+          "scan_interval": "Segundos entre as coletas (mínimo 60).",
+          "thresholds_url": "Opcional. Arquivo JSON com limites que substituem os padrões.",
+          "ignored_entities": "Padrões glob fora da contagem de indisponíveis (ex.: sensor.tv_*).",
+          "zigbee_entities": "Entidades que representam o bridge ou coordenador Zigbee.",
+          "backup_entity": "Sensor de data/hora com o último backup, para sites com backup próprio.",
+          "kuma_down_on_critical": "Quando o nível geral for crítico, enviar status down em vez de up."
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Informe uma URL válida com http:// ou https://."
     }
   }
 }

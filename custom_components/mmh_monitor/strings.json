@@ -3,20 +3,81 @@
     "step": {
       "user": {
         "title": "MMH Monitor",
-        "description": "Configure health monitoring for this Home Assistant site.",
+        "description": "Connect this Home Assistant to the MMH central monitoring. A test point is written to InfluxDB before saving.",
         "data": {
-          "site_slug": "Site identifier"
+          "site_slug": "Site identifier",
+          "influx_url": "InfluxDB URL",
+          "influx_org": "InfluxDB organization",
+          "influx_bucket": "InfluxDB bucket",
+          "influx_token": "InfluxDB token",
+          "kuma_push_url": "Uptime Kuma push URL"
         },
         "data_description": {
-          "site_slug": "Lowercase identifier of the customer site, without spaces (e.g. cliente-exemplo)."
+          "site_slug": "Lowercase identifier of the customer site, without spaces (e.g. cliente-exemplo).",
+          "influx_url": "Address of the central InfluxDB, including https://.",
+          "influx_org": "Organization configured in InfluxDB.",
+          "influx_bucket": "Bucket that receives the health data.",
+          "influx_token": "Write-only token created for this site.",
+          "kuma_push_url": "Optional. URL of the Push monitor for this site in Uptime Kuma."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure MMH Monitor",
+        "description": "Update the central connection settings for site {site}.",
+        "data": {
+          "influx_url": "InfluxDB URL",
+          "influx_org": "InfluxDB organization",
+          "influx_bucket": "InfluxDB bucket",
+          "influx_token": "InfluxDB token",
+          "kuma_push_url": "Uptime Kuma push URL"
+        },
+        "data_description": {
+          "influx_url": "Address of the central InfluxDB, including https://.",
+          "influx_org": "Organization configured in InfluxDB.",
+          "influx_bucket": "Bucket that receives the health data.",
+          "influx_token": "Leave empty to keep the current token.",
+          "kuma_push_url": "Optional. URL of the Push monitor for this site in Uptime Kuma."
         }
       }
     },
     "error": {
-      "invalid_slug": "Use only lowercase letters, numbers, hyphen and underscore."
+      "invalid_slug": "Use only lowercase letters, numbers, hyphen and underscore.",
+      "invalid_url": "Enter a valid http:// or https:// URL.",
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "bucket_not_found": "InfluxDB did not find this organization or bucket.",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
     },
     "abort": {
-      "single_instance_allowed": "[%key:common::config_flow::abort::single_instance_allowed%]"
+      "single_instance_allowed": "[%key:common::config_flow::abort::single_instance_allowed%]",
+      "already_configured": "[%key:common::config_flow::abort::already_configured_service%]",
+      "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "MMH Monitor options",
+        "data": {
+          "scan_interval": "Collection interval",
+          "thresholds_url": "Remote thresholds URL",
+          "ignored_entities": "Ignored entities",
+          "zigbee_entities": "Zigbee coordinator entities",
+          "backup_entity": "Last backup entity",
+          "kuma_down_on_critical": "Report down to Uptime Kuma when critical"
+        },
+        "data_description": {
+          "scan_interval": "Seconds between checks (minimum 60).",
+          "thresholds_url": "Optional. JSON file with thresholds that override the defaults.",
+          "ignored_entities": "Glob patterns excluded from the unavailable count (e.g. sensor.tv_*).",
+          "zigbee_entities": "Entities that represent the Zigbee bridge or coordinator.",
+          "backup_entity": "Timestamp sensor with the last backup, for sites with their own backup solution.",
+          "kuma_down_on_critical": "When the overall level is critical, send status down instead of up."
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Enter a valid http:// or https:// URL."
     }
   }
 }
