@@ -5,6 +5,15 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.1.1] - 2026-11-06
+
+### Corrigido
+- `backup`: passa a considerar todos os backups conhecidos pelo HA (agendamento nativo, automações com `hassio.backup_full` e backups manuais), e não só os do agendamento automático nativo. A lista é lida no máximo a cada 30 minutos.
+
+### Alterado
+- `backup`: limites padrão ajustados ao padrão MMH (backup a cada 15 dias, no máximo 30): atenção com 16 dias (384 h) e crítico com 30 dias (720 h).
+- `backup`: fica crítico se a última tentativa do backup automático nativo falhou.
+
 ## [0.1.0] - 2026-11-06
 
 Primeira versão, para o piloto.
@@ -27,5 +36,6 @@ Primeira versão, para o piloto.
 - README em pt-BR: instalação, configuração, entidades, checagens, limites, esquema de dados, diagnóstico e segurança.
 - Guia do servidor central (`docs/central.md`), dashboard do Grafana (`docs/grafana/`) e exemplo de limites (`docs/thresholds.example.json`).
 
-[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.0...HEAD
+[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mymagichome/mmh-monitor/releases/tag/v0.1.0

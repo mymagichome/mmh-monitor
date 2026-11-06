@@ -2,6 +2,7 @@
   "domain": "mmh_monitor",
   "name": "MMH Monitor",
   "after_dependencies": [
+    "backup",
     "recorder"
   ],
   "codeowners": [
@@ -14,5 +15,5 @@
   "issue_tracker": "https://github.com/mymagichome/mmh-monitor/issues",
   "requirements": [],
   "single_config_entry": true,
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

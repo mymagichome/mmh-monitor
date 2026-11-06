@@ -13,7 +13,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 from custom_components.mmh_monitor.checks import ALL_KEYS
 from custom_components.mmh_monitor.const import DOMAIN
 
-from .conftest import INFLUX_WRITE, KUMA_URL
+from .conftest import INFLUX_WRITE, KUMA_URL, VERSION
 
 
 async def _setup(hass: HomeAssistant, entry: MockConfigEntry) -> None:
@@ -50,7 +50,7 @@ async def test_entities_created(
     health = hass.states.get("sensor.mmh_health")
     assert health.attributes["options"] == ["ok", "atencao", "critico"]
     assert health.attributes["site"] == "cliente-exemplo"
-    assert health.attributes["versao"] == "0.1.0"
+    assert health.attributes["versao"] == VERSION
     assert "ultima_coleta" in health.attributes
     assert health.attributes["ultimo_envio_ok"] is not None
 

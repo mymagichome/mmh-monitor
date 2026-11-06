@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -21,6 +23,9 @@ INFLUX_URL = "https://influx.example.com"
 INFLUX_WRITE = f"{INFLUX_URL}/api/v2/write"
 KUMA_URL = "https://kuma.example.com/api/push/SECRETPUSHTOKEN"
 TOKEN = "SECRET-INFLUX-TOKEN"
+VERSION = json.loads(
+    (Path(__file__).parents[1] / "custom_components/mmh_monitor/manifest.json").read_text()
+)["version"]
 
 
 @pytest.fixture(autouse=True)

@@ -81,7 +81,7 @@ Em **⋮ → Reconfigurar** é possível trocar URL, organização, bucket, toke
 ### Recomendações por site
 
 - **Zigbee2MQTT:** informe a entidade de estado do bridge nas opções. Com ZHA não é preciso: a integração usa o estado da própria ZHA.
-- **Backup próprio** (ex.: Samba Backup, Google Drive Backup): informe o sensor com a data do último backup. Com o backup nativo do HA não é preciso.
+- **Backup:** a integração enxerga todos os backups que o HA conhece: os do agendamento nativo, os criados por automação (`hassio.backup_full`) e os manuais. Só informe uma entidade nas opções se o site usar uma ferramenta de backup externa que o HA não lista.
 - **Entidades que ficam indisponíveis por natureza** (TVs desligadas, dispositivos sazonais): coloque-as em "Entidades ignoradas" para não gerar alerta falso.
 
 ---
@@ -117,7 +117,7 @@ Uma checagem que não se aplica ao site (sem `/proc`, banco MariaDB, sem Zigbee�
 | `system_log` | Erros registrados no log desde a coleta anterior | 5 | 20 |
 | `recorder` | Tamanho do banco SQLite em MB (MariaDB/PostgreSQL: não monitorado) | 2000 | 5000 |
 | `updates` | Atualizações pendentes (`details` indica se o HA Core está entre elas) | 1 | nunca |
-| `backup` | Horas desde o último backup bem-sucedido | 48 | 168 |
+| `backup` | Horas desde o último backup (qualquer origem). Crítico também se a última tentativa automática falhou | 384 (16 dias) | 720 (30 dias) |
 | `zigbee` | Entidades do coordenador em estado de falha, ou ZHA com erro | — | 1 |
 
 O **nível geral** (`sensor.mmh_health`) é o pior nível entre as checagens, ignorando as não monitoradas. A mensagem geral lista os motivos das que não estão ok.
