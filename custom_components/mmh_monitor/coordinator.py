@@ -98,7 +98,9 @@ class MMHMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
     async def _async_grace_over(self, _now: Any) -> None:
         self._unsub_grace = None
         self.starting = False
-        await self.async_request_refresh()
+        # Not the debounced request_refresh: an interval refresh at the same
+        # moment would otherwise push this full collection back by the cooldown.
+        await self.async_refresh()
 
     async def async_setup_checks(self) -> None:
         """Set up every check."""

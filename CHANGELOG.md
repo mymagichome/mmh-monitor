@@ -5,9 +5,14 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.1.3] - 2026-11-06
+
 ### Adicionado
 - Cadastro por código: na instalação, escolha **Código de cadastro** e informe o identificador do site e o código gerado no painel do gateway MMH. A URL, a organização, o bucket e um token do InfluxDB só de escrita, criado para o site, são preenchidos sozinhos. O modo manual continua disponível.
 - Reconfigurar com um código novo troca o token; o gateway revoga o anterior.
+
+### Corrigido
+- Ao fim do período de estabilização após o início do HA, a coleta completa às vezes atrasava 10 segundos quando coincidia com a coleta normal. Agora ela roda na hora.
 
 ## [0.1.2] - 2026-11-06
 
@@ -45,7 +50,8 @@ Primeira versão, para o piloto.
 - README em pt-BR: instalação, configuração, entidades, checagens, limites, esquema de dados, diagnóstico e segurança.
 - Guia do servidor central (`docs/central.md`), dashboard do Grafana (`docs/grafana/`) e exemplo de limites (`docs/thresholds.example.json`).
 
-[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.2...HEAD
+[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mymagichome/mmh-monitor/releases/tag/v0.1.0
