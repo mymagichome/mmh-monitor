@@ -34,7 +34,8 @@ from .publisher import (
     async_write_influx,
     build_lines,
 )
-from .thresholds import DEFAULT_THRESHOLDS, Threshold
+from .repairs import RepairManager
+from .thresholds import ThresholdManager
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,7 +48,11 @@ class MMHMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
     config_entry: MMHMonitorConfigEntry
 
     def __init__(
-        self, hass: HomeAssistant, entry: MMHMonitorConfigEntry, version: str
+        self,
+        hass: HomeAssistant,
+        entry: MMHMonitorConfigEntry,
+        version: str,
+        threshold_manager: ThresholdManager,
     ) -> None:
         """Initialize the coordinator."""
         super().__init__(
@@ -62,7 +67,8 @@ class MMHMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
         self.version = version
         self.site: str = entry.data[CONF_SITE_SLUG]
         self.checks: list[BaseCheck] = [cls(hass, entry) for cls in CHECKS]
-        self.thresholds: dict[str, Threshold] = dict(DEFAULT_THRESHOLDS)
+        self.threshold_manager = threshold_manager
+        self.repairs = RepairManager(hass)
         self.publish_status = PublishStatus()
         self._session = async_get_clientsession(hass)
         self._influx_log = FailureLogger("InfluxDB")
@@ -80,11 +86,14 @@ class MMHMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
                 await check.async_shutdown()
             except Exception:  # noqa: BLE001 - shutdown must not fail unload
                 _LOGGER.debug("Error shutting down %s", type(check).__name__, exc_info=True)
+        self.threshold_manager.async_shutdown()
+        self.repairs.async_clear()
         await super().async_shutdown()
 
     async def _async_update_data(self) -> MonitorData:
         """Run the checks and publish. Never raises for check or network errors."""
         data = await self._async_run_checks()
+        self.repairs.async_update(data)
         await self._async_publish(data)
         return data
 
@@ -92,7 +101,7 @@ class MMHMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
         results: dict[str, CheckResult] = {}
         for check in self.checks:
             try:
-                check_results = await check.async_run(self.thresholds)
+                check_results = await check.async_run(self.threshold_manager.current)
             except Exception:  # noqa: BLE001 - one check must not break the others
                 _LOGGER.warning(
                     "Check %s failed; reporting it as not monitored",

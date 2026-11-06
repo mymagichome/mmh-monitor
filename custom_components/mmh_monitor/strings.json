@@ -135,5 +135,11 @@
         "name": "Central delivery"
       }
     }
+  },
+  "issues": {
+    "check_critical": {
+      "title": "Critical health check: {check}",
+      "description": "{message}\n\nMMH Monitor only reports this problem; it does not change anything on this system. This issue closes by itself when the check returns to OK or warning."
+    }
   }
 }
