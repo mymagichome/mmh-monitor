@@ -25,7 +25,7 @@ from custom_components.mmh_monitor.const import (
     DOMAIN,
 )
 
-from .conftest import INFLUX_WRITE, KUMA_URL, TOKEN
+from .conftest import INFLUX_WRITE, KUMA_URL, TOKEN, VERSION
 
 
 def _user_input(entry_data: dict[str, Any], **overrides: Any) -> dict[str, Any]:
@@ -64,7 +64,7 @@ async def test_user_flow_success(
     assert url.query == {"org": "mmh", "bucket": "mmh_health", "precision": "s"}
     assert headers["Authorization"] == f"Token {TOKEN}"
     assert body.decode().startswith(
-        "mmh_monitor_setup,site=cliente-exemplo,version=0.1.0 ok=1i "
+        f"mmh_monitor_setup,site=cliente-exemplo,version={VERSION} ok=1i "
     )
 
 

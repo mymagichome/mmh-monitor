@@ -14,8 +14,9 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+from custom_components.mmh_monitor.checks import backup as backup_mod
 from custom_components.mmh_monitor.checks import system as system_mod
-from custom_components.mmh_monitor.checks.backup import BackupCheck
+from custom_components.mmh_monitor.checks.backup import BackupCheck, ManagerInfo
 from custom_components.mmh_monitor.checks.base import BaseCheck
 from custom_components.mmh_monitor.checks.entities import UnavailableEntitiesCheck
 from custom_components.mmh_monitor.checks.integrations import IntegrationsCheck
@@ -331,7 +332,7 @@ async def test_updates(hass: HomeAssistant) -> None:
 # -- backup -----------------------------------------------------------------
 
 
-@pytest.mark.parametrize(("hours", "level"), [(1, OK), (48, ATENCAO), (200, CRITICO)])
+@pytest.mark.parametrize(("hours", "level"), [(1, OK), (383, OK), (384, ATENCAO), (720, CRITICO)])
 async def test_backup_option_entity(
     hass: HomeAssistant, hours: int, level: HealthLevel
 ) -> None:
@@ -364,6 +365,105 @@ async def test_backup_native(hass: HomeAssistant, entity_registry: er.EntityRegi
     hass.states.async_set(reg.entity_id, "unavailable")
     result = (await _run(BackupCheck, hass))["backup"]
     assert result.level is NAO
+
+
+def _patch_manager(monkeypatch: pytest.MonkeyPatch, info: ManagerInfo | None) -> list[int]:
+    calls: list[int] = []
+
+    async def fake(hass):
+        calls.append(1)
+        return info
+
+    monkeypatch.setattr(backup_mod, "async_get_manager_info", fake)
+    return calls
+
+
+@pytest.mark.parametrize(("days", "level"), [(2, OK), (15, OK), (16, ATENCAO), (30, CRITICO)])
+async def test_backup_manager_any_backup(
+    hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch, days: int, level: HealthLevel
+) -> None:
+    """Backups created by automations (not the native schedule) are counted."""
+    latest = dt_util.utcnow() - timedelta(days=days)
+    _patch_manager(
+        monkeypatch,
+        ManagerInfo(latest, "MMH_Backup Full - 01/11/2026", 3, None, None),
+    )
+    result = (await _run(BackupCheck, hass))["backup"]
+    assert result.level is level
+    assert result.value == pytest.approx(days * 24, abs=0.1)
+    assert result.details["source"] == "manager"
+    assert result.details["last_backup_name"] == "MMH_Backup Full - 01/11/2026"
+    assert result.details["last_automatic_failed"] is False
+
+
+async def test_backup_manager_failed_attempt(
+    hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A failed last automatic attempt is critical even with a recent backup."""
+    now = dt_util.utcnow()
+    _patch_manager(
+        monkeypatch,
+        ManagerInfo(now - timedelta(days=1), "x", 1, now - timedelta(hours=1), now - timedelta(days=1)),
+    )
+    result = (await _run(BackupCheck, hass))["backup"]
+    assert result.level is CRITICO
+    assert result.details["last_automatic_failed"] is True
+    assert "falhou" in result.message
+
+
+async def test_backup_manager_no_backups(
+    hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """No backup at all is critical."""
+    _patch_manager(monkeypatch, ManagerInfo(None, None, 0, None, None))
+    result = (await _run(BackupCheck, hass))["backup"]
+    assert (result.value, result.level) == (None, CRITICO)
+
+
+async def test_backup_option_beats_manager(
+    hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The configured entity wins over the backup manager."""
+    calls = _patch_manager(monkeypatch, ManagerInfo(None, None, 0, None, None))
+    hass.states.async_set("sensor.my_backup", dt_util.utcnow().isoformat())
+    result = (
+        await _run(BackupCheck, hass, **{CONF_BACKUP_ENTITY: "sensor.my_backup"})
+    )["backup"]
+    assert result.details["source"] == "option"
+    assert calls == []
+
+
+async def test_backup_manager_cached(
+    hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The backup list is read at most every 30 minutes."""
+    calls = _patch_manager(
+        monkeypatch, ManagerInfo(dt_util.utcnow(), "x", 1, None, None)
+    )
+    check = BackupCheck(hass, _entry(hass))
+    await check.async_run(DEFAULT_THRESHOLDS)
+    await check.async_run(DEFAULT_THRESHOLDS)
+    assert len(calls) == 1
+    check._manager_read_at -= timedelta(minutes=31)
+    await check.async_run(DEFAULT_THRESHOLDS)
+    assert len(calls) == 2
+
+
+async def test_backup_manager_error_falls_back(
+    hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch, entity_registry: er.EntityRegistry
+) -> None:
+    """If listing fails, the native sensor is used."""
+
+    async def boom(hass):
+        raise RuntimeError("agent down")
+
+    monkeypatch.setattr(backup_mod, "async_get_manager_info", boom)
+    reg = entity_registry.async_get_or_create(
+        "sensor", "backup", "last_successful_automatic_backup"
+    )
+    hass.states.async_set(reg.entity_id, dt_util.utcnow().isoformat())
+    result = (await _run(BackupCheck, hass))["backup"]
+    assert result.details["source"] == "native"
 
 
 async def test_backup_not_monitored(hass: HomeAssistant) -> None:
@@ -416,3 +516,15 @@ async def test_zigbee_not_monitored(hass: HomeAssistant) -> None:
     """No entities and no ZHA means not monitored."""
     result = (await _run(ZigbeeCheck, hass))["zigbee"]
     assert result.level is NAO
+
+
+async def test_backup_manager_info_real_integration(hass: HomeAssistant) -> None:
+    """Smoke test against the real backup integration (no backups yet)."""
+    from homeassistant.setup import async_setup_component
+
+    assert await async_setup_component(hass, "backup", {})
+    await hass.async_block_till_done()
+    info = await backup_mod.async_get_manager_info(hass)
+    assert info is not None
+    assert info.count == 0
+    assert info.latest is None

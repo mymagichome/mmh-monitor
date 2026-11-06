@@ -59,7 +59,8 @@ DEFAULT_THRESHOLDS: dict[str, Threshold] = {
     "memory_use": Threshold(atencao=85, critico=95),  # percent
     "load_1m": Threshold(atencao=1.5, critico=3.0),  # load per CPU
     "recorder": Threshold(atencao=2000, critico=5000),  # MB
-    "backup": Threshold(atencao=48, critico=168),  # hours
+    # MMH sites back up every 15 days and must have one at least every 30.
+    "backup": Threshold(atencao=384, critico=720),  # hours (16 d / 30 d)
     "updates": Threshold(atencao=1),  # never critical
     "zigbee": Threshold(critico=1),  # coordinator problems
 }

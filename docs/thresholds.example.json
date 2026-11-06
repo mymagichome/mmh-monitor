@@ -4,7 +4,7 @@
     "disk_use": { "atencao": 75, "critico": 90 },
     "memory_use": { "atencao": 85, "critico": 95 },
     "unavailable_entities": { "atencao": 5, "critico": 15 },
-    "backup": { "atencao": 48, "critico": 168 }
+    "backup": { "atencao": 384, "critico": 720 }
   },
   "sites": {
     "cliente-exemplo": {
