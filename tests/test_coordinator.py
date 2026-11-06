@@ -73,7 +73,8 @@ async def test_polls_on_interval(
     assert aioclient_mock.call_count == 2
 
     async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=301))
-    await hass.async_block_till_done()
+    # Interval refreshes run as background tasks.
+    await hass.async_block_till_done(wait_background_tasks=True)
     assert aioclient_mock.call_count == 4
 
 

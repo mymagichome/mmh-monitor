@@ -79,5 +79,61 @@
     "error": {
       "invalid_url": "Enter a valid http:// or https:// URL."
     }
+  },
+  "entity": {
+    "sensor": {
+      "health": {
+        "name": "Health",
+        "state": {
+          "ok": "OK",
+          "atencao": "Warning",
+          "critico": "Critical"
+        }
+      },
+      "integrations": {
+        "name": "Failed integrations"
+      },
+      "unavailable_entities": {
+        "name": "Unavailable entities"
+      },
+      "disk_use": {
+        "name": "Disk use"
+      },
+      "memory_use": {
+        "name": "Memory use"
+      },
+      "load_1m": {
+        "name": "CPU load per core"
+      },
+      "host_uptime": {
+        "name": "Host uptime"
+      },
+      "ha_uptime": {
+        "name": "Home Assistant uptime"
+      },
+      "system_log": {
+        "name": "Log errors"
+      },
+      "recorder": {
+        "name": "Database size"
+      },
+      "updates": {
+        "name": "Pending updates"
+      },
+      "backup": {
+        "name": "Time since last backup"
+      },
+      "zigbee": {
+        "name": "Zigbee coordinator problems"
+      }
+    },
+    "binary_sensor": {
+      "problema": {
+        "name": "Problem"
+      },
+      "envio_central": {
+        "name": "Central delivery"
+      }
+    }
   }
 }

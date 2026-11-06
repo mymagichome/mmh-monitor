@@ -1,7 +1,12 @@
 {
   "domain": "mmh_monitor",
   "name": "MMH Monitor",
-  "codeowners": ["@mymagichome"],
+  "after_dependencies": [
+    "recorder"
+  ],
+  "codeowners": [
+    "@mymagichome"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/mymagichome/mmh-monitor",
   "integration_type": "service",

@@ -10,7 +10,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Options flow: intervalo de coleta, URL de limites remotos, entidades ignoradas, entidades Zigbee, entidade de backup e opção de enviar `down` ao Kuma quando crítico.
 - Reconfigure flow para trocar URL e token sem remover a integração.
 - Envio a cada ciclo ao InfluxDB (line protocol, um POST por ciclo) e heartbeat ao Uptime Kuma, independentes entre si e sem afetar o HA em caso de falha.
-- Coordenador com a primeira checagem (`integrations`) e cálculo do nível geral.
+- Coordenador com cálculo do nível geral (pior nível entre as checagens).
+- Checagens: `integrations`, `unavailable_entities`, `system` (`disk_use`, `memory_use`, `load_1m`, `host_uptime`, `ha_uptime`), `system_log`, `recorder`, `updates`, `backup` e `zigbee`, cada uma isolada das demais.
+- Limites padrão embutidos para todas as checagens.
+- Entidades com IDs fixos: `sensor.mmh_health`, um `sensor.mmh_<checagem>` por medição, `binary_sensor.mmh_problema` e `binary_sensor.mmh_envio_central`.
 - Estrutura inicial da integração `mmh_monitor` (manifest, config flow mínimo com validação do identificador do site, instância única).
 - Workflows de CI: hassfest, validação HACS e pytest, com actions fixadas por hash de commit.
 - Dependabot para manter as actions do CI atualizadas.

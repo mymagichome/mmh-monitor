@@ -9,8 +9,7 @@ from homeassistant.loader import async_get_integration
 from .const import DOMAIN
 from .coordinator import MMHMonitorConfigEntry, MMHMonitorCoordinator
 
-# Entity platforms (sensor, binary_sensor) arrive in phase 3.
-PLATFORMS: list[Platform] = []
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: MMHMonitorConfigEntry) -> bool:
