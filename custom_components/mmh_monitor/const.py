@@ -36,6 +36,10 @@ HTTP_TIMEOUT: Final = 10  # seconds
 # Repeated identical network failures are logged at most once per this period.
 LOG_REPEAT_INTERVAL: Final = 3600  # seconds
 
+# After Home Assistant reports it has started, checks that depend on other
+# integrations wait this long before being evaluated.
+STARTUP_GRACE: Final = 300  # seconds
+
 # Limits
 MAX_DETAIL_ITEMS: Final = 20
 MAX_MESSAGE_LENGTH: Final = 250

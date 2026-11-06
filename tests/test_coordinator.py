@@ -174,3 +174,62 @@ async def test_critical_level_and_kuma_down(
 
     kuma = next(url for method, url, _, _ in aioclient_mock.mock_calls if method == "GET")
     assert kuma.query["status"] == status
+
+
+async def test_startup_grace_period(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    config_entry: MockConfigEntry,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Checks that depend on other integrations wait for HA to settle after boot."""
+    from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
+    from homeassistant.core import CoreState
+
+    from custom_components.mmh_monitor.const import CONF_ZIGBEE_ENTITIES
+
+    aioclient_mock.post(INFLUX_WRITE, status=204)
+    aioclient_mock.get(KUMA_URL, json={"ok": True})
+    hass.set_state(CoreState.starting)
+    entry = MockConfigEntry(
+        domain="mmh_monitor",
+        data=config_entry.data,
+        options={CONF_ZIGBEE_ENTITIES: ["binary_sensor.z2m_bridge"]},
+    )
+    await _setup(hass, entry)
+
+    data = entry.runtime_data.data
+    # The Zigbee bridge entity does not exist yet: no false critical.
+    for key in ("zigbee", "unavailable_entities", "integrations"):
+        assert data.results[key].level is HealthLevel.NAO_MONITORADO, key
+        assert "estabilizar" in data.results[key].message
+    assert data.results["disk_use"].level is not HealthLevel.NAO_MONITORADO
+    assert data.level is not HealthLevel.CRITICO
+
+    # HA finishes starting; the bridge shows up.
+    hass.set_state(CoreState.running)
+    hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
+    hass.states.async_set("binary_sensor.z2m_bridge", "on")
+    await hass.async_block_till_done()
+    assert entry.runtime_data.starting is True
+
+    # Grace period over: a full collection runs right away.
+    calls_before = aioclient_mock.call_count
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=301))
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert entry.runtime_data.starting is False
+    assert aioclient_mock.call_count > calls_before
+    assert entry.runtime_data.data.results["zigbee"].level is HealthLevel.OK
+
+
+async def test_no_grace_when_ha_already_running(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    config_entry: MockConfigEntry,
+) -> None:
+    """Installing or reloading on a running HA evaluates everything at once."""
+    aioclient_mock.post(INFLUX_WRITE, status=204)
+    aioclient_mock.get(KUMA_URL, json={"ok": True})
+    await _setup(hass, config_entry)
+    assert config_entry.runtime_data.starting is False
+    assert config_entry.runtime_data.data.results["integrations"].level is HealthLevel.OK

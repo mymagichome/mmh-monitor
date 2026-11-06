@@ -5,6 +5,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.1.2] - 2026-11-06
+
+### Corrigido
+- Falso crítico logo após reiniciar o HA: as checagens `zigbee`, `unavailable_entities` e `integrations` dependem de outras integrações terem carregado. Agora elas ficam como "não monitorado" até 5 minutos depois de o HA terminar de iniciar, e uma coleta completa roda assim que esse período acaba.
+
 ## [0.1.1] - 2026-11-06
 
 ### Corrigido
@@ -36,6 +41,7 @@ Primeira versão, para o piloto.
 - README em pt-BR: instalação, configuração, entidades, checagens, limites, esquema de dados, diagnóstico e segurança.
 - Guia do servidor central (`docs/central.md`), dashboard do Grafana (`docs/grafana/`) e exemplo de limites (`docs/thresholds.example.json`).
 
-[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.1...HEAD
+[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mymagichome/mmh-monitor/releases/tag/v0.1.0

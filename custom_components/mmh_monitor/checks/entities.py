@@ -21,6 +21,7 @@ class UnavailableEntitiesCheck(BaseCheck):
     """
 
     keys = ("unavailable_entities",)
+    wait_for_startup = True
 
     async def async_run(self, thresholds: dict[str, Threshold]) -> list[CheckResult]:
         """Run the check."""

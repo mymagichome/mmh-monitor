@@ -5,11 +5,14 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import timedelta
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.const import __version__ as HA_VERSION
-from homeassistant.core import HomeAssistant
+from homeassistant.core import CALLBACK_TYPE, CoreState, Event, HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
@@ -25,6 +28,7 @@ from .const import (
     CONF_SITE_SLUG,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    STARTUP_GRACE,
 )
 from .models import CheckResult, HealthLevel, MonitorData, PublishStatus, worst_level
 from .publisher import (
@@ -73,6 +77,28 @@ class MMHMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
         self._session = async_get_clientsession(hass)
         self._influx_log = FailureLogger("InfluxDB")
         self._kuma_log = FailureLogger("Uptime Kuma")
+        # True until HA has started and the grace period has passed. When the
+        # integration is set up on a running HA (install, reload), there is no
+        # startup to wait for.
+        self.starting = hass.state is not CoreState.running
+        self._unsub_started: CALLBACK_TYPE | None = None
+        self._unsub_grace: CALLBACK_TYPE | None = None
+        if self.starting:
+            self._unsub_started = hass.bus.async_listen_once(
+                EVENT_HOMEASSISTANT_STARTED, self._async_ha_started
+            )
+
+    @callback
+    def _async_ha_started(self, _event: Event) -> None:
+        self._unsub_started = None  # a fired one-time listener must not be removed
+        self._unsub_grace = async_call_later(
+            self.hass, STARTUP_GRACE, self._async_grace_over
+        )
+
+    async def _async_grace_over(self, _now: Any) -> None:
+        self._unsub_grace = None
+        self.starting = False
+        await self.async_request_refresh()
 
     async def async_setup_checks(self) -> None:
         """Set up every check."""
@@ -86,6 +112,10 @@ class MMHMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
                 await check.async_shutdown()
             except Exception:  # noqa: BLE001 - shutdown must not fail unload
                 _LOGGER.debug("Error shutting down %s", type(check).__name__, exc_info=True)
+        for unsub in (self._unsub_started, self._unsub_grace):
+            if unsub:
+                unsub()
+        self._unsub_started = self._unsub_grace = None
         self.threshold_manager.async_shutdown()
         self.repairs.async_clear()
         await super().async_shutdown()
@@ -100,6 +130,10 @@ class MMHMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
     async def _async_run_checks(self) -> MonitorData:
         results: dict[str, CheckResult] = {}
         for check in self.checks:
+            if self.starting and check.wait_for_startup:
+                for result in check.unmonitored("Aguardando o Home Assistant estabilizar após o início"):
+                    results[result.key] = result
+                continue
             try:
                 check_results = await check.async_run(self.threshold_manager.current)
             except Exception:  # noqa: BLE001 - one check must not break the others

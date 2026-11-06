@@ -25,6 +25,7 @@ class ZigbeeCheck(BaseCheck):
     """Check configured coordinator entities, or the ZHA config entry."""
 
     keys = ("zigbee",)
+    wait_for_startup = True
 
     async def async_run(self, thresholds: dict[str, Threshold]) -> list[CheckResult]:
         """Run the check."""
