@@ -14,6 +14,12 @@ CONF_INFLUX_ORG: Final = "influx_org"
 CONF_INFLUX_BUCKET: Final = "influx_bucket"
 CONF_INFLUX_TOKEN: Final = "influx_token"
 CONF_KUMA_PUSH_URL: Final = "kuma_push_url"
+CONF_GATEWAY_URL: Final = "gateway_url"
+
+# Enrollment by code (form field only, never stored)
+CONF_ENROLLMENT_CODE: Final = "enrollment_code"
+DEFAULT_GATEWAY_URL: Final = "https://mcp.mymagichome.com.br"
+ENROLL_TIMEOUT: Final = 30  # seconds
 
 # Options
 CONF_SCAN_INTERVAL: Final = "scan_interval"

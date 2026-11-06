@@ -3,6 +3,30 @@
     "step": {
       "user": {
         "title": "MMH Monitor",
+        "description": "How do you want to connect this Home Assistant to the MMH central monitoring?",
+        "menu_options": {
+          "code": "Enrollment code (recommended)",
+          "manual": "Enter the InfluxDB settings manually"
+        }
+      },
+      "code": {
+        "title": "Enrollment code",
+        "description": "Generate a code for this site in the MMH gateway panel (MMH Monitor section) and paste it here. The InfluxDB settings and token are filled in automatically.",
+        "data": {
+          "site_slug": "Site identifier",
+          "enrollment_code": "Enrollment code",
+          "kuma_push_url": "Uptime Kuma push URL",
+          "gateway_url": "Gateway URL"
+        },
+        "data_description": {
+          "site_slug": "Lowercase identifier of the customer site, without spaces (e.g. cliente-exemplo).",
+          "enrollment_code": "One-time code from the gateway panel, e.g. MMH-ABCDE-FGH23. Valid for 24 hours.",
+          "kuma_push_url": "Optional. URL of the Push monitor for this site in Uptime Kuma.",
+          "gateway_url": "Address of the MMH gateway. Keep the default unless told otherwise."
+        }
+      },
+      "manual": {
+        "title": "MMH Monitor",
         "description": "Connect this Home Assistant to the MMH central monitoring. A test point is written to InfluxDB before saving.",
         "data": {
           "site_slug": "Site identifier",
@@ -22,6 +46,26 @@
         }
       },
       "reconfigure": {
+        "title": "Reconfigure MMH Monitor",
+        "description": "How do you want to update the connection of site {site}?",
+        "menu_options": {
+          "reconfigure_code": "New enrollment code (replaces the token)",
+          "reconfigure_manual": "Edit the settings manually"
+        }
+      },
+      "reconfigure_code": {
+        "title": "Reconnect with a new code",
+        "description": "Generate a new code for site {site} in the gateway panel. The gateway creates a new token and revokes the old one.",
+        "data": {
+          "enrollment_code": "Enrollment code",
+          "gateway_url": "Gateway URL"
+        },
+        "data_description": {
+          "enrollment_code": "One-time code from the gateway panel, e.g. MMH-ABCDE-FGH23. Valid for 24 hours.",
+          "gateway_url": "Address of the MMH gateway. Keep the default unless told otherwise."
+        }
+      },
+      "reconfigure_manual": {
         "title": "Reconfigure MMH Monitor",
         "description": "Update the central connection settings for site {site}.",
         "data": {
@@ -46,7 +90,12 @@
       "cannot_connect": "Failed to connect",
       "invalid_auth": "Invalid authentication",
       "bucket_not_found": "InfluxDB did not find this organization or bucket.",
-      "unknown": "Unexpected error"
+      "unknown": "Unexpected error",
+      "invalid_code": "Invalid, already used or expired code. Generate a new one in the gateway panel.",
+      "wrong_site": "{detail}",
+      "too_many_attempts": "Too many attempts with invalid codes. Wait 15 minutes.",
+      "cannot_connect_gateway": "Could not reach the MMH gateway.",
+      "gateway_error": "The gateway could not complete the enrollment: {detail}"
     },
     "abort": {
       "single_instance_allowed": "Already configured. Only a single configuration is possible.",

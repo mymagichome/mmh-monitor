@@ -32,12 +32,29 @@ def _user_input(entry_data: dict[str, Any], **overrides: Any) -> dict[str, Any]:
     return {**entry_data, **overrides}
 
 
-async def _start(hass: HomeAssistant) -> dict[str, Any]:
+async def _start(hass: HomeAssistant, method: str = "manual") -> dict[str, Any]:
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
+    assert result["type"] is FlowResultType.MENU
+    assert result["menu_options"] == ["code", "manual"]
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": method}
+    )
     assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "user"
+    assert result["step_id"] == method
+    return result
+
+
+async def _start_reconfigure(
+    hass: HomeAssistant, entry: MockConfigEntry, method: str = "reconfigure_manual"
+) -> dict[str, Any]:
+    result = await entry.start_reconfigure_flow(hass)
+    assert result["type"] is FlowResultType.MENU
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": method}
+    )
+    assert result["step_id"] == method
     return result
 
 
@@ -185,9 +202,7 @@ async def test_reconfigure_keeps_token_when_empty(
     assert await hass.config_entries.async_setup(config_entry.entry_id)
     await hass.async_block_till_done()
 
-    result = await config_entry.start_reconfigure_flow(hass)
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "reconfigure"
+    result = await _start_reconfigure(hass, config_entry)
 
     data = dict(config_entry.data)
     data.pop(CONF_SITE_SLUG)
@@ -211,7 +226,7 @@ async def test_reconfigure_invalid_auth(
     """A rejected new token shows an error and changes nothing."""
     config_entry.add_to_hass(hass)
     aioclient_mock.post(INFLUX_WRITE, status=401)
-    result = await config_entry.start_reconfigure_flow(hass)
+    result = await _start_reconfigure(hass, config_entry)
     data = dict(config_entry.data)
     data.pop(CONF_SITE_SLUG)
     data[CONF_INFLUX_TOKEN] = "new-bad-token"

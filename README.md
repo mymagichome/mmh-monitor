@@ -36,7 +36,9 @@ O servidor central (InfluxDB, Grafana, Cloudflare Tunnel) está descrito em [doc
 1. No HACS, abra o menu **⋮ → Repositórios personalizados**.
 2. Adicione `https://github.com/mymagichome/mmh-monitor` com a categoria **Integração**.
 3. Procure **MMH Monitor**, clique em **Baixar** e reinicie o Home Assistant.
-4. Em **Configurações → Dispositivos e serviços → Adicionar integração**, procure **MMH Monitor**.
+4. Em **Configurações → Dispositivos e serviços → Adicionar integração**, procure **MMH Monitor** e escolha:
+   - **Código de cadastro (recomendado):** gere um código para o site no painel do gateway MMH (seção MMH Monitor), informe o identificador do site e cole o código. O token do InfluxDB, só de escrita e exclusivo do site, é criado e salvo sozinho.
+   - **Manual:** informe os dados do InfluxDB (veja abaixo).
 
 Só é permitida **uma instância** por Home Assistant.
 
@@ -50,7 +52,7 @@ Cada versão é publicada como release no GitHub (`v0.1.0`, `v0.2.0`…). O HACS
 
 Toda a configuração é feita pela interface, sem YAML.
 
-### Instalação
+### Instalação manual
 
 | Campo | Obrigatório | Observação |
 |---|---|---|
@@ -76,7 +78,10 @@ Antes de salvar, a integração grava um ponto de teste (`mmh_monitor_setup`) no
 
 ### Reconfigurar
 
-Em **⋮ → Reconfigurar** é possível trocar URL, organização, bucket, token e URL do Kuma sem remover a integração. Deixe o token vazio para manter o atual.
+Em **⋮ → Reconfigurar**:
+
+- **Novo código de cadastro:** troca o token por um novo; o gateway revoga o anterior.
+- **Manual:** troca URL, organização, bucket, token e URL do Kuma. Deixe o token vazio para manter o atual.
 
 ### Recomendações por site
 

@@ -5,6 +5,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Adicionado
+- Cadastro por código: na instalação, escolha **Código de cadastro** e informe o identificador do site e o código gerado no painel do gateway MMH. A URL, a organização, o bucket e um token do InfluxDB só de escrita, criado para o site, são preenchidos sozinhos. O modo manual continua disponível.
+- Reconfigurar com um código novo troca o token; o gateway revoga o anterior.
+
 ## [0.1.2] - 2026-11-06
 
 ### Corrigido

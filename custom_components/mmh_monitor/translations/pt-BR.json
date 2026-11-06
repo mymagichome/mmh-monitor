@@ -3,6 +3,30 @@
     "step": {
       "user": {
         "title": "MMH Monitor",
+        "description": "Como você quer conectar este Home Assistant ao monitoramento central da MMH?",
+        "menu_options": {
+          "code": "Código de cadastro (recomendado)",
+          "manual": "Informar os dados do InfluxDB manualmente"
+        }
+      },
+      "code": {
+        "title": "Código de cadastro",
+        "description": "Gere um código para este site no painel do gateway MMH (seção MMH Monitor) e cole aqui. Os dados do InfluxDB e o token são preenchidos sozinhos.",
+        "data": {
+          "site_slug": "Identificador do site",
+          "enrollment_code": "Código de cadastro",
+          "kuma_push_url": "URL de push do Uptime Kuma",
+          "gateway_url": "Endereço do gateway"
+        },
+        "data_description": {
+          "site_slug": "Identificador do cliente em minúsculas, sem espaços (ex.: cliente-exemplo).",
+          "enrollment_code": "Código de uso único do painel do gateway, ex.: MMH-ABCDE-FGH23. Vale por 24 horas.",
+          "kuma_push_url": "Opcional. URL do monitor Push deste site no Uptime Kuma.",
+          "gateway_url": "Endereço do gateway MMH. Mantenha o padrão, salvo orientação em contrário."
+        }
+      },
+      "manual": {
+        "title": "MMH Monitor",
         "description": "Conecte este Home Assistant ao monitoramento central da MMH. Um ponto de teste é gravado no InfluxDB antes de salvar.",
         "data": {
           "site_slug": "Identificador do site",
@@ -22,6 +46,26 @@
         }
       },
       "reconfigure": {
+        "title": "Reconfigurar MMH Monitor",
+        "description": "Como você quer atualizar a conexão do site {site}?",
+        "menu_options": {
+          "reconfigure_code": "Novo código de cadastro (troca o token)",
+          "reconfigure_manual": "Editar os dados manualmente"
+        }
+      },
+      "reconfigure_code": {
+        "title": "Reconectar com um novo código",
+        "description": "Gere um código novo para o site {site} no painel do gateway. O gateway cria um token novo e revoga o anterior.",
+        "data": {
+          "enrollment_code": "Código de cadastro",
+          "gateway_url": "Endereço do gateway"
+        },
+        "data_description": {
+          "enrollment_code": "Código de uso único do painel do gateway, ex.: MMH-ABCDE-FGH23. Vale por 24 horas.",
+          "gateway_url": "Endereço do gateway MMH. Mantenha o padrão, salvo orientação em contrário."
+        }
+      },
+      "reconfigure_manual": {
         "title": "Reconfigurar MMH Monitor",
         "description": "Atualize a conexão com a central para o site {site}.",
         "data": {
@@ -46,7 +90,12 @@
       "cannot_connect": "Falha ao conectar ao InfluxDB",
       "invalid_auth": "Token inválido ou sem permissão de escrita",
       "bucket_not_found": "O InfluxDB não encontrou esta organização ou bucket.",
-      "unknown": "Erro inesperado"
+      "unknown": "Erro inesperado",
+      "invalid_code": "Código inválido, já usado ou expirado. Gere outro no painel do gateway.",
+      "wrong_site": "{detail}",
+      "too_many_attempts": "Muitas tentativas com código inválido. Aguarde 15 minutos.",
+      "cannot_connect_gateway": "Não foi possível falar com o gateway MMH.",
+      "gateway_error": "O gateway não conseguiu concluir o cadastro: {detail}"
     },
     "abort": {
       "single_instance_allowed": "Já configurado. Só é permitida uma única configuração.",

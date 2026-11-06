@@ -30,6 +30,8 @@ from yarl import URL
 
 from .const import (
     CONF_BACKUP_ENTITY,
+    CONF_ENROLLMENT_CODE,
+    CONF_GATEWAY_URL,
     CONF_IGNORED_ENTITIES,
     CONF_INFLUX_BUCKET,
     CONF_INFLUX_ORG,
@@ -41,6 +43,7 @@ from .const import (
     CONF_SITE_SLUG,
     CONF_THRESHOLDS_URL,
     CONF_ZIGBEE_ENTITIES,
+    DEFAULT_GATEWAY_URL,
     DEFAULT_INFLUX_BUCKET,
     DEFAULT_INFLUX_ORG,
     DEFAULT_SCAN_INTERVAL,
@@ -49,6 +52,7 @@ from .const import (
     MIN_SCAN_INTERVAL,
     SITE_SLUG_PATTERN,
 )
+from .enrollment import EnrollmentError, async_enroll
 from .publisher import (
     InfluxAuthError,
     InfluxBucketError,
@@ -83,6 +87,43 @@ USER_SCHEMA = vol.Schema({vol.Required(CONF_SITE_SLUG): _TEXT}).extend(
     _connection_schema(token_required=True).schema
 )
 RECONFIGURE_SCHEMA = _connection_schema(token_required=False)
+
+CODE_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_SITE_SLUG): _TEXT,
+        vol.Required(CONF_ENROLLMENT_CODE): _TEXT,
+        vol.Optional(CONF_KUMA_PUSH_URL): _URL,
+        vol.Required(CONF_GATEWAY_URL, default=DEFAULT_GATEWAY_URL): _URL,
+    }
+)
+RECONFIGURE_CODE_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ENROLLMENT_CODE): _TEXT,
+        vol.Required(CONF_GATEWAY_URL, default=DEFAULT_GATEWAY_URL): _URL,
+    }
+)
+
+
+async def _async_enroll(
+    hass: HomeAssistant, gateway_url: str, code: str, slug: str
+) -> tuple[dict[str, str] | None, str | None, str]:
+    """Exchange a code for credentials. Returns (credentials, error key, detail)."""
+    integration = await async_get_integration(hass, DOMAIN)
+    try:
+        creds = await async_enroll(
+            async_get_clientsession(hass),
+            gateway_url=gateway_url,
+            code=code,
+            slug=slug,
+            version=str(integration.version),
+        )
+    except EnrollmentError as err:
+        _LOGGER.debug("Enrollment failed: %s (%s)", err.key, err.detail)
+        return None, err.key, err.detail
+    except Exception:
+        _LOGGER.exception("Unexpected error during enrollment")
+        return None, "unknown", ""
+    return creds, None, ""
 
 
 def _is_http_url(value: str) -> bool:
@@ -150,7 +191,57 @@ class MMHMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the initial setup."""
+        """Choose how to connect: enrollment code (recommended) or manual."""
+        return self.async_show_menu(step_id="user", menu_options=["code", "manual"])
+
+    async def async_step_code(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Connect with a one-time code from the MMH gateway panel."""
+        errors: dict[str, str] = {}
+        placeholders = {"detail": ""}
+
+        if user_input is not None:
+            data = _normalize(user_input)
+            slug = data[CONF_SITE_SLUG]
+            if not SITE_SLUG_PATTERN.fullmatch(slug):
+                errors[CONF_SITE_SLUG] = "invalid_slug"
+            if CONF_KUMA_PUSH_URL in data and not _is_http_url(data[CONF_KUMA_PUSH_URL]):
+                errors[CONF_KUMA_PUSH_URL] = "invalid_url"
+            if not errors:
+                await self.async_set_unique_id(slug)
+                self._abort_if_unique_id_configured()
+                creds, error, detail = await _async_enroll(
+                    self.hass, data[CONF_GATEWAY_URL], data[CONF_ENROLLMENT_CODE], slug
+                )
+                if error:
+                    errors["base"] = error
+                    placeholders["detail"] = detail
+                else:
+                    entry_data = {
+                        CONF_SITE_SLUG: slug,
+                        **creds,
+                        CONF_GATEWAY_URL: data[CONF_GATEWAY_URL],
+                    }
+                    if CONF_KUMA_PUSH_URL in data:
+                        entry_data[CONF_KUMA_PUSH_URL] = data[CONF_KUMA_PUSH_URL]
+                    return self.async_create_entry(
+                        title=f"MMH Monitor ({slug})", data=entry_data
+                    )
+
+        return self.async_show_form(
+            step_id="code",
+            data_schema=self.add_suggested_values_to_schema(
+                CODE_SCHEMA, _without_code(user_input)
+            ),
+            errors=errors,
+            description_placeholders=placeholders,
+        )
+
+    async def async_step_manual(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Enter the InfluxDB settings by hand."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -170,7 +261,7 @@ class MMHMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
 
         return self.async_show_form(
-            step_id="user",
+            step_id="manual",
             data_schema=self.add_suggested_values_to_schema(
                 USER_SCHEMA, _without_secrets(user_input)
             ),
@@ -180,7 +271,48 @@ class MMHMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Change the InfluxDB and Uptime Kuma settings without reinstalling."""
+        """Choose how to reconnect: a new code (new token) or manual."""
+        return self.async_show_menu(
+            step_id="reconfigure",
+            menu_options=["reconfigure_code", "reconfigure_manual"],
+            description_placeholders={"site": self._get_reconfigure_entry().data[CONF_SITE_SLUG]},
+        )
+
+    async def async_step_reconfigure_code(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Get fresh credentials with a new code; the gateway revokes the old token."""
+        entry = self._get_reconfigure_entry()
+        slug = entry.data[CONF_SITE_SLUG]
+        errors: dict[str, str] = {}
+        placeholders = {"site": slug, "detail": ""}
+
+        if user_input is not None:
+            data = _normalize(user_input)
+            creds, error, detail = await _async_enroll(
+                self.hass, data[CONF_GATEWAY_URL], data[CONF_ENROLLMENT_CODE], slug
+            )
+            if error:
+                errors["base"] = error
+                placeholders["detail"] = detail
+            else:
+                return self.async_update_reload_and_abort(
+                    entry,
+                    data_updates={**creds, CONF_GATEWAY_URL: data[CONF_GATEWAY_URL]},
+                )
+
+        suggested = {CONF_GATEWAY_URL: entry.data.get(CONF_GATEWAY_URL, DEFAULT_GATEWAY_URL)}
+        return self.async_show_form(
+            step_id="reconfigure_code",
+            data_schema=self.add_suggested_values_to_schema(RECONFIGURE_CODE_SCHEMA, suggested),
+            errors=errors,
+            description_placeholders=placeholders,
+        )
+
+    async def async_step_reconfigure_manual(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Change the InfluxDB and Uptime Kuma settings by hand."""
         entry = self._get_reconfigure_entry()
         errors: dict[str, str] = {}
 
@@ -201,7 +333,7 @@ class MMHMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
 
         suggested = _without_secrets(user_input if user_input is not None else dict(entry.data))
         return self.async_show_form(
-            step_id="reconfigure",
+            step_id="reconfigure_manual",
             data_schema=self.add_suggested_values_to_schema(RECONFIGURE_SCHEMA, suggested),
             errors=errors,
             description_placeholders={"site": entry.data[CONF_SITE_SLUG]},
@@ -212,6 +344,13 @@ class MMHMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(config_entry: ConfigEntry) -> MMHMonitorOptionsFlow:
         """Return the options flow."""
         return MMHMonitorOptionsFlow()
+
+
+def _without_code(values: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Never pre-fill a used (or rejected) code back into a form."""
+    if values is None:
+        return None
+    return {k: v for k, v in values.items() if k != CONF_ENROLLMENT_CODE}
 
 
 def _without_secrets(values: dict[str, Any] | None) -> dict[str, Any] | None:
