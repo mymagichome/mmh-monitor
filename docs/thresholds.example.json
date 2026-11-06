@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "checks": {
+    "disk_use": { "atencao": 75, "critico": 90 },
+    "memory_use": { "atencao": 85, "critico": 95 },
+    "unavailable_entities": { "atencao": 5, "critico": 15 },
+    "backup": { "atencao": 48, "critico": 168 }
+  },
+  "sites": {
+    "cliente-exemplo": {
+      "disk_use": { "atencao": 80, "critico": 92 }
+    },
+    "outro-cliente": {
+      "unavailable_entities": { "atencao": 10, "critico": 25 },
+      "updates": { "atencao": null }
+    }
+  }
+}

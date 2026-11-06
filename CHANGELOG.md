@@ -5,6 +5,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.1.0] - 2026-11-06
+
+Primeira versão, para o piloto.
+
 ### Adicionado
 - Config flow completo: identificador do site, InfluxDB (URL, organização, bucket, token) e URL de push do Uptime Kuma, com escrita de teste no InfluxDB antes de salvar.
 - Options flow: intervalo de coleta, URL de limites remotos, entidades ignoradas, entidades Zigbee, entidade de backup e opção de enviar `down` ao Kuma quando crítico.
@@ -20,4 +24,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Estrutura inicial da integração `mmh_monitor` (manifest, config flow mínimo com validação do identificador do site, instância única).
 - Workflows de CI: hassfest, validação HACS e pytest, com actions fixadas por hash de commit.
 - Dependabot para manter as actions do CI atualizadas.
-- Seção de segurança e privacidade no README.
+- README em pt-BR: instalação, configuração, entidades, checagens, limites, esquema de dados, diagnóstico e segurança.
+- Guia do servidor central (`docs/central.md`), dashboard do Grafana (`docs/grafana/`) e exemplo de limites (`docs/thresholds.example.json`).
+
+[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/mymagichome/mmh-monitor/releases/tag/v0.1.0
