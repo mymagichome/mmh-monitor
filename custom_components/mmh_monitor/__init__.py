@@ -2,20 +2,35 @@
 
 from __future__ import annotations
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.loader import async_get_integration
 
-# Platforms are added in later phases (sensor, binary_sensor).
+from .const import DOMAIN
+from .coordinator import MMHMonitorConfigEntry, MMHMonitorCoordinator
+
+# Entity platforms (sensor, binary_sensor) arrive in phase 3.
 PLATFORMS: list[Platform] = []
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: MMHMonitorConfigEntry) -> bool:
     """Set up MMH Monitor from a config entry."""
+    integration = await async_get_integration(hass, DOMAIN)
+    coordinator = MMHMonitorCoordinator(hass, entry, str(integration.version))
+    await coordinator.async_setup_checks()
+    await coordinator.async_config_entry_first_refresh()
+
+    # Keep the coordinator polling even when no entity is listening.
+    entry.async_on_unload(coordinator.async_add_listener(lambda: None))
+
+    entry.runtime_data = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: MMHMonitorConfigEntry) -> bool:
     """Unload a config entry."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unloaded:
+        await entry.runtime_data.async_shutdown()
+    return unloaded
