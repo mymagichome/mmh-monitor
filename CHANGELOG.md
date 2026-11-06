@@ -13,6 +13,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Coordenador com cálculo do nível geral (pior nível entre as checagens).
 - Checagens: `integrations`, `unavailable_entities`, `system` (`disk_use`, `memory_use`, `load_1m`, `host_uptime`, `ha_uptime`), `system_log`, `recorder`, `updates`, `backup` e `zigbee`, cada uma isolada das demais.
 - Limites padrão embutidos para todas as checagens.
+- Limites remotos: JSON em `thresholds_url` buscado a cada 6 horas, validado e mesclado campo a campo (`sites.<slug>` > `checks` > padrão), com cache local para reinícios e quedas de rede.
+- Reparos: checagem crítica abre um aviso em Configurações → Reparos, removido quando volta a OK ou atenção.
+- Diagnóstico com configuração (token, URL do Kuma e URL dos limites redigidos), limites vigentes, último resultado e status dos envios.
 - Entidades com IDs fixos: `sensor.mmh_health`, um `sensor.mmh_<checagem>` por medição, `binary_sensor.mmh_problema` e `binary_sensor.mmh_envio_central`.
 - Estrutura inicial da integração `mmh_monitor` (manifest, config flow mínimo com validação do identificador do site, instância única).
 - Workflows de CI: hassfest, validação HACS e pytest, com actions fixadas por hash de commit.

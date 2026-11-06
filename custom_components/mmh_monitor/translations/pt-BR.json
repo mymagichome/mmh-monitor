@@ -135,5 +135,11 @@
         "name": "Envio à central"
       }
     }
+  },
+  "issues": {
+    "check_critical": {
+      "title": "Checagem crítica: {check}",
+      "description": "{message}\n\nO MMH Monitor apenas informa este problema; ele não altera nada neste sistema. Este aviso some sozinho quando a checagem voltar a OK ou atenção."
+    }
   }
 }
