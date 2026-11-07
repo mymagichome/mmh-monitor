@@ -5,6 +5,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Adicionado
+- Ícone da integração (pasta `brand/`), exibido no Home Assistant e no HACS.
+
 ## [0.1.3] - 2026-11-06
 
 ### Adicionado
