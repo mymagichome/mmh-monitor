@@ -22,6 +22,8 @@ from .checks import ALL_KEYS
 from .coordinator import MMHMonitorConfigEntry, MMHMonitorCoordinator
 from .entity import MMHMonitorEntity
 from .models import HealthLevel
+from .reasons import label, limits_text
+from .thresholds import get_threshold
 
 HEALTH_OPTIONS = [HealthLevel.OK.state, HealthLevel.ATENCAO.state, HealthLevel.CRITICO.state]
 
@@ -59,7 +61,9 @@ class HealthSensor(MMHMonitorEntity, SensorEntity):
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_options = HEALTH_OPTIONS
-    _unrecorded_attributes = frozenset({"motivos", "ultima_coleta", "ultimo_envio_ok"})
+    _unrecorded_attributes = frozenset(
+        {"resumo", "motivos", "ultima_coleta", "ultimo_envio_ok"}
+    )
 
     def __init__(self, coordinator: MMHMonitorCoordinator) -> None:
         """Initialize the sensor."""
@@ -75,12 +79,15 @@ class HealthSensor(MMHMonitorEntity, SensorEntity):
         """Return reasons and delivery information."""
         data = self.coordinator.data
         status = self.coordinator.publish_status
+
+        def problems(level: HealthLevel) -> list[str]:
+            return [label(k) for k, r in data.results.items() if r.level is level]
+
         return {
-            "motivos": [
-                r.message
-                for r in data.results.values()
-                if r.level in (HealthLevel.ATENCAO, HealthLevel.CRITICO)
-            ],
+            "resumo": data.message,
+            "motivos": data.reasons,
+            "checagens_criticas": problems(HealthLevel.CRITICO),
+            "checagens_atencao": problems(HealthLevel.ATENCAO),
             "site": self.coordinator.site,
             "versao": self.coordinator.version,
             "ultima_coleta": data.collected_at.isoformat(),
@@ -97,7 +104,7 @@ class CheckSensor(MMHMonitorEntity, SensorEntity):
 
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _unrecorded_attributes = frozenset({"mensagem", "details"})
+    _unrecorded_attributes = frozenset({"mensagem", "limites", "details"})
 
     def __init__(self, coordinator: MMHMonitorCoordinator, key: str) -> None:
         """Initialize the sensor."""
@@ -121,8 +128,14 @@ class CheckSensor(MMHMonitorEntity, SensorEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return level, message and details."""
         result = self.coordinator.data.results[self._key]
+        threshold = get_threshold(
+            self.coordinator.threshold_manager.current, self._key
+        )
         return {
             "nivel": result.level.state,
             "mensagem": result.message,
+            "limite_atencao": threshold.atencao,
+            "limite_critico": threshold.critico,
+            "limites": limits_text(self._key, threshold, result.unit) or None,
             "details": result.details,
         }

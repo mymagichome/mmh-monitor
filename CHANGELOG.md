@@ -6,7 +6,13 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 ## [Não lançado]
 
 ### Adicionado
+- `sensor.mmh_health` explica o porquê: `resumo` (texto único), `motivos` (um por problema, críticos primeiro, com o nível, o valor e os limites — ex.: "Atenção — Disco em 81% (atenção a partir de 75%, crítico a partir de 90%)"), `checagens_criticas` e `checagens_atencao`.
+- Cada `sensor.mmh_<checagem>` mostra `limite_atencao`, `limite_critico` e `limites` (texto).
+- A mensagem enviada ao InfluxDB em `mmh_health` usa o mesmo texto dos motivos.
 - Ícone da integração (pasta `brand/`), exibido no Home Assistant e no HACS.
+
+### Corrigido
+- Concordância no singular: "1 atualização pendente" e "1 entidade indisponível".
 
 ## [0.1.3] - 2026-11-06
 

@@ -44,6 +44,8 @@ class UpdatesCheck(BaseCheck):
                 f"{count} atualizações pendentes, incluindo o HA Core "
                 f"{core.attributes.get('latest_version', '')}".rstrip()
             )
+        elif count == 1:
+            message = "1 atualização pendente"
         else:
             message = f"{count} atualizações pendentes"
         details = {

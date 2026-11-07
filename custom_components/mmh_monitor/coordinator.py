@@ -38,8 +38,9 @@ from .publisher import (
     async_write_influx,
     build_lines,
 )
+from .reasons import describe
 from .repairs import RepairManager
-from .thresholds import ThresholdManager
+from .thresholds import ThresholdManager, get_threshold
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -149,17 +150,23 @@ class MMHMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
                 results[result.key] = result
 
         level = worst_level(list(results.values()))
-        reasons = [
-            r.message
-            for r in results.values()
-            if r.level in (HealthLevel.ATENCAO, HealthLevel.CRITICO)
-        ]
+        thresholds = self.threshold_manager.current
+        problems = sorted(
+            (
+                r
+                for r in results.values()
+                if r.level in (HealthLevel.ATENCAO, HealthLevel.CRITICO)
+            ),
+            key=lambda r: -int(r.level),
+        )
+        reasons = [describe(r, get_threshold(thresholds, r.key)) for r in problems]
         message = "; ".join(reasons) if reasons else "Tudo OK"
         return MonitorData(
             results=results,
             level=level,
             message=message,
             collected_at=dt_util.utcnow(),
+            reasons=reasons,
         )
 
     async def _async_publish(self, data: MonitorData) -> None:

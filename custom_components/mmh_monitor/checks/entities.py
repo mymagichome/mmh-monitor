@@ -49,7 +49,8 @@ class UnavailableEntitiesCheck(BaseCheck):
         if count == 0:
             message = "Nenhuma entidade indisponível"
         else:
-            message = f"{count} entidades indisponíveis ({percent:g}%)"
+            noun = "entidade indisponível" if count == 1 else "entidades indisponíveis"
+            message = f"{count} {noun} ({percent:g}%)"
         unavailable.sort()
         return [
             CheckResult(
