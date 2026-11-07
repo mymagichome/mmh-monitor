@@ -26,5 +26,3 @@ jobs:
       - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa # main
         with:
           category: integration
-          # No brand assets yet; remove once the MMH icon is added.
-          ignore: brands
