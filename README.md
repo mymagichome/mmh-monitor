@@ -97,10 +97,18 @@ Todas ficam no dispositivo **MMH Monitor**. Os IDs são fixos e iguais em todo c
 
 | Entidade | Estado | Atributos |
 |---|---|---|
-| `sensor.mmh_health` | `ok` / `atencao` / `critico` | `motivos`, `site`, `versao`, `ultima_coleta`, `ultimo_envio_ok` |
-| `sensor.mmh_<checagem>` | valor medido (diagnóstico) | `nivel`, `mensagem`, `details` |
+| `sensor.mmh_health` | `ok` / `atencao` / `critico` | `resumo`, `motivos`, `checagens_criticas`, `checagens_atencao`, `site`, `versao`, `ultima_coleta`, `ultimo_envio_ok` |
+| `sensor.mmh_<checagem>` | valor medido (diagnóstico) | `nivel`, `mensagem`, `limite_atencao`, `limite_critico`, `limites`, `details` |
 | `binary_sensor.mmh_problema` | ligado se o nível geral não for ok | `nivel` |
 | `binary_sensor.mmh_envio_central` | ligado se o último envio ao InfluxDB funcionou (diagnóstico) | `ultimo_erro` |
+
+Cada motivo diz o nível, o que foi medido e os limites, por exemplo:
+
+```
+resumo: Atenção — Disco em 81% (atenção a partir de 75%, crítico a partir de 90%)
+checagens_criticas: []
+checagens_atencao: [Disco]
+```
 
 Os atributos longos (`details`, `mensagem`, `motivos`) não são gravados no histórico do recorder, para não aumentar o banco do cliente.
 

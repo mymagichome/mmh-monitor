@@ -48,6 +48,8 @@ class MonitorData:
     level: HealthLevel
     message: str
     collected_at: datetime
+    #: One explanation per check in warning or critical, critical first.
+    reasons: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)

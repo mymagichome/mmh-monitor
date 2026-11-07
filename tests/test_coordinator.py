@@ -167,7 +167,8 @@ async def test_critical_level_and_kuma_down(
 
     data = config_entry.runtime_data.data
     assert data.level is HealthLevel.CRITICO
-    assert data.message == "Algo crítico"
+    assert data.message == "Crítico — Algo crítico"
+    assert data.reasons == ["Crítico — Algo crítico"]
     # A failing check is isolated and reported as not monitored.
     assert data.results["broken_a"].level is HealthLevel.NAO_MONITORADO
     assert data.results["broken_b"].level is HealthLevel.NAO_MONITORADO
