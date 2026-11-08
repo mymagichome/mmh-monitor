@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.config_entries import ConfigEntryState
+from homeassistant.config_entries import SOURCE_IGNORE, ConfigEntryState
 
 from ..const import MAX_DETAIL_ITEMS
 from ..models import CheckResult, HealthLevel
@@ -28,7 +28,9 @@ class IntegrationsCheck(BaseCheck):
         failed = [
             entry
             for entry in self.hass.config_entries.async_entries()
-            if entry.disabled_by is None and entry.state in FAILED_STATES
+            if entry.disabled_by is None
+            and entry.source != SOURCE_IGNORE
+            and entry.state in FAILED_STATES
         ]
         count = len(failed)
         level = get_threshold(thresholds, "integrations").level_for(count)

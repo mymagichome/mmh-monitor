@@ -512,6 +512,24 @@ async def test_zigbee_zha(hass: HomeAssistant, state: ConfigEntryState, level: H
     zha.mock_state(hass, ConfigEntryState.NOT_LOADED)
 
 
+async def test_zigbee_ignores_dismissed_discoveries(hass: HomeAssistant) -> None:
+    """ZHA discoveries the user ignored are not a coordinator in use."""
+    from homeassistant.config_entries import SOURCE_IGNORE
+
+    _failed_entry(hass, "zha", ConfigEntryState.NOT_LOADED, source=SOURCE_IGNORE)
+    result = (await _run(ZigbeeCheck, hass))["zigbee"]
+    assert result.level is NAO
+
+
+async def test_zigbee_prefers_loaded_entry(hass: HomeAssistant) -> None:
+    """With several ZHA entries, a loaded one means the coordinator works."""
+    _failed_entry(hass, "zha", ConfigEntryState.SETUP_RETRY)
+    loaded = _failed_entry(hass, "zha", ConfigEntryState.LOADED)
+    result = (await _run(ZigbeeCheck, hass))["zigbee"]
+    assert result.level is OK
+    loaded.mock_state(hass, ConfigEntryState.NOT_LOADED)
+
+
 async def test_zigbee_not_monitored(hass: HomeAssistant) -> None:
     """No entities and no ZHA means not monitored."""
     result = (await _run(ZigbeeCheck, hass))["zigbee"]

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.config_entries import ConfigEntryState
+from homeassistant.config_entries import SOURCE_IGNORE, ConfigEntryState
 
 from ..const import CONF_ZIGBEE_ENTITIES
 from ..models import CheckResult, HealthLevel
@@ -34,13 +34,16 @@ class ZigbeeCheck(BaseCheck):
         if entity_ids:
             return [self._from_entities(entity_ids, threshold)]
 
+        # Entries with source "ignore" are discoveries the user dismissed:
+        # they are never set up and are not a coordinator in use.
         zha = [
             e
             for e in self.hass.config_entries.async_entries("zha")
-            if e.disabled_by is None
+            if e.disabled_by is None and e.source != SOURCE_IGNORE
         ]
         if zha:
-            return [self._from_zha(zha[0].state, threshold)]
+            loaded = [e for e in zha if e.state is ConfigEntryState.LOADED]
+            return [self._from_zha((loaded or zha)[0].state, threshold)]
         return self.unmonitored("Nenhum coordenador Zigbee configurado")
 
     def _from_entities(self, entity_ids: list[str], threshold: Threshold) -> CheckResult:
