@@ -5,6 +5,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.1.5] - 2026-11-08
+
 ### Corrigido
 - Zigbee: entradas do ZHA com origem "ignorar" (descobertas que o usuário dispensou) não contam mais como coordenador com problema; com várias entradas, uma carregada basta para OK.
 - Integrações com falha também desconsideram entradas ignoradas.
@@ -69,7 +71,8 @@ Primeira versão, para o piloto.
 - README em pt-BR: instalação, configuração, entidades, checagens, limites, esquema de dados, diagnóstico e segurança.
 - Guia do servidor central (`docs/central.md`), dashboard do Grafana (`docs/grafana/`) e exemplo de limites (`docs/thresholds.example.json`).
 
-[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.4...HEAD
+[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.1...v0.1.2
