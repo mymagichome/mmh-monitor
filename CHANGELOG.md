@@ -5,6 +5,13 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Corrigido
+- Zigbee: entradas do ZHA com origem "ignorar" (descobertas que o usuário dispensou) não contam mais como coordenador com problema; com várias entradas, uma carregada basta para OK.
+- Integrações com falha também desconsideram entradas ignoradas.
+
+### Removido
+- Docs: o Uptime Kuma deixa de ser necessário — os alertas de site parado vêm do gateway. A URL de push continua opcional.
+
 ## [0.1.4] - 2026-11-08
 
 ### Adicionado

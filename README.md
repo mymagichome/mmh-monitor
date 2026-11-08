@@ -11,13 +11,13 @@ A cada ciclo (padrão: 5 minutos) ela:
 1. roda um conjunto de checagens (integrações com falha, entidades indisponíveis, disco, memória, banco de dados, backup, Zigbee…);
 2. classifica cada uma e o site como um todo em **ok**, **atenção** ou **crítico**;
 3. envia todas as medições — inclusive as normais, para análise de tendência — a um **InfluxDB** central;
-4. envia um heartbeat ao **Uptime Kuma**, que avisa quando o site para de reportar.
+4. (opcional) envia um heartbeat a um **Uptime Kuma**. Sem ele, quem avisa que um site parou de reportar é quem lê o InfluxDB (por exemplo, um verificador de alertas).
 
 A integração **só lê e reporta**. Ela nunca altera nada no Home Assistant do cliente.
 
 ```
 HA do cliente ──(HTTPS, token só de escrita)──► InfluxDB central ──► Grafana / alertas / relatórios
-      └────────(heartbeat)────────────────────► Uptime Kuma
+      └────────(heartbeat, opcional)──────────► Uptime Kuma
 ```
 
 O servidor central (InfluxDB, Grafana, Cloudflare Tunnel) está descrito em [docs/central.md](docs/central.md).
