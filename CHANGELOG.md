@@ -5,6 +5,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.1.4] - 2026-11-08
+
 ### Adicionado
 - `sensor.mmh_health` explica o porquê: `resumo` (texto único), `motivos` (um por problema, críticos primeiro, com o nível, o valor e os limites — ex.: "Atenção — Disco em 81% (atenção a partir de 75%, crítico a partir de 90%)"), `checagens_criticas` e `checagens_atencao`.
 - Cada `sensor.mmh_<checagem>` mostra `limite_atencao`, `limite_critico` e `limites` (texto).
@@ -60,7 +62,8 @@ Primeira versão, para o piloto.
 - README em pt-BR: instalação, configuração, entidades, checagens, limites, esquema de dados, diagnóstico e segurança.
 - Guia do servidor central (`docs/central.md`), dashboard do Grafana (`docs/grafana/`) e exemplo de limites (`docs/thresholds.example.json`).
 
-[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.3...HEAD
+[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.0...v0.1.1
