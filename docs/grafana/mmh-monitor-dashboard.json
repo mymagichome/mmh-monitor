@@ -30,7 +30,7 @@
     "to": "now"
   },
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "templating": {
     "list": [
       {
@@ -82,7 +82,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"mmh_health\" and (r._field == \"level\" or r._field == \"msg\"))\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\", \"_field\"])\n  |> last()\n  |> keep(columns: [\"site\", \"version\", \"ha_version\", \"_field\", \"_value\", \"_time\"])\n  |> group()\n  |> pivot(rowKey: [\"site\", \"version\", \"ha_version\", \"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"level\"], desc: true)"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"mmh_health\" and (r._field == \"level\" or r._field == \"msg\"))\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\", \"_field\"])\n  |> sort(columns: [\"_time\"])\n  |> last()\n  |> keep(columns: [\"site\", \"version\", \"ha_version\", \"_field\", \"_value\", \"_time\"])\n  |> group()\n  |> pivot(rowKey: [\"site\", \"version\", \"ha_version\", \"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"level\"], desc: true)"
         }
       ],
       "fieldConfig": {
@@ -376,7 +376,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and (r._field == \"level\" or r._field == \"msg\" or r._field == \"value\"))\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\", \"check\", \"_field\"])\n  |> last()\n  |> keep(columns: [\"site\", \"check\", \"_field\", \"_value\", \"_time\"])\n  |> group()\n  |> pivot(rowKey: [\"site\", \"check\", \"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => r.level >= 1)\n  |> sort(columns: [\"level\"], desc: true)"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and (r._field == \"level\" or r._field == \"msg\" or r._field == \"value\"))\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\", \"check\", \"_field\"])\n  |> sort(columns: [\"_time\"])\n  |> last()\n  |> keep(columns: [\"site\", \"check\", \"_field\", \"_value\", \"_time\"])\n  |> group()\n  |> pivot(rowKey: [\"site\", \"check\", \"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => r.level >= 1)\n  |> sort(columns: [\"level\"], desc: true)"
         }
       ],
       "fieldConfig": {
