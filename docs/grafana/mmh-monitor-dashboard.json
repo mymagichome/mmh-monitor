@@ -82,7 +82,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"mmh_health\" and (r._field == \"level\" or r._field == \"msg\"))\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\", \"_field\"])\n  |> sort(columns: [\"_time\"])\n  |> last()\n  |> keep(columns: [\"site\", \"version\", \"ha_version\", \"_field\", \"_value\", \"_time\"])\n  |> group()\n  |> pivot(rowKey: [\"site\", \"version\", \"ha_version\", \"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"level\"], desc: true)"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"mmh_health\" and (r._field == \"level\" or r._field == \"msg\"))\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> map(fn: (r) => ({r with _value: string(v: r._value)}))\n  |> group(columns: [\"site\", \"_field\"])\n  |> sort(columns: [\"_time\"])\n  |> last()\n  |> keep(columns: [\"site\", \"version\", \"ha_version\", \"_field\", \"_value\", \"_time\"])\n  |> group()\n  |> pivot(rowKey: [\"site\", \"version\", \"ha_version\", \"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({r with level: int(v: r.level)}))\n  |> sort(columns: [\"level\"], desc: true)"
         }
       ],
       "fieldConfig": {
@@ -280,7 +280,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_health\" and r._field == \"level\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_health\" and r._field == \"level\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -339,7 +339,8 @@
           "custom": {
             "fillOpacity": 80,
             "lineWidth": 0
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -376,7 +377,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and (r._field == \"level\" or r._field == \"msg\" or r._field == \"value\"))\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\", \"check\", \"_field\"])\n  |> sort(columns: [\"_time\"])\n  |> last()\n  |> keep(columns: [\"site\", \"check\", \"_field\", \"_value\", \"_time\"])\n  |> group()\n  |> pivot(rowKey: [\"site\", \"check\", \"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => r.level >= 1)\n  |> sort(columns: [\"level\"], desc: true)"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and (r._field == \"level\" or r._field == \"msg\" or r._field == \"value\"))\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> map(fn: (r) => ({r with _value: string(v: r._value)}))\n  |> group(columns: [\"site\", \"check\", \"_field\"])\n  |> sort(columns: [\"_time\"])\n  |> last()\n  |> keep(columns: [\"site\", \"check\", \"_field\", \"_value\", \"_time\"])\n  |> group()\n  |> pivot(rowKey: [\"site\", \"check\", \"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({r with level: int(v: r.level)}))\n  |> filter(fn: (r) => r.level >= 1)\n  |> sort(columns: [\"level\"], desc: true)"
         }
       ],
       "fieldConfig": {
@@ -567,7 +568,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"disk_use\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"disk_use\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -602,7 +603,8 @@
             "thresholdsStyle": {
               "mode": "dashed"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -639,7 +641,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"memory_use\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"memory_use\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -674,7 +676,8 @@
             "thresholdsStyle": {
               "mode": "dashed"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -711,7 +714,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"load_1m\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"load_1m\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -746,7 +749,8 @@
             "thresholdsStyle": {
               "mode": "dashed"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -783,7 +787,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"unavailable_entities\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"unavailable_entities\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -818,7 +822,8 @@
             "thresholdsStyle": {
               "mode": "dashed"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -855,7 +860,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"recorder\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"recorder\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -890,7 +895,8 @@
             "thresholdsStyle": {
               "mode": "dashed"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -927,7 +933,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"system_log\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"system_log\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -962,7 +968,8 @@
             "thresholdsStyle": {
               "mode": "dashed"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -999,7 +1006,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"integrations\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"integrations\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -1034,7 +1041,8 @@
             "thresholdsStyle": {
               "mode": "dashed"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -1071,7 +1079,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"backup\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"backup\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -1106,7 +1114,8 @@
             "thresholdsStyle": {
               "mode": "dashed"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -1143,7 +1152,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"updates\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"updates\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -1174,7 +1183,8 @@
             "thresholdsStyle": {
               "mode": "dashed"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
@@ -1211,7 +1221,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"ha_uptime\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: min, createEmpty: false)\n  |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r.site}))"
+          "query": "from(bucket: \"mmh_health\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"mmh_check\" and r.check == \"ha_uptime\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.site, set: ${site:json}))\n  |> group(columns: [\"site\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: min, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\", \"site\"])"
         }
       ],
       "fieldConfig": {
@@ -1238,7 +1248,8 @@
             "thresholdsStyle": {
               "mode": "off"
             }
-          }
+          },
+          "displayName": "${__field.labels.site}"
         },
         "overrides": []
       },
