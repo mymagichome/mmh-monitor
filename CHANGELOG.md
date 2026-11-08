@@ -12,6 +12,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Ícone da integração (pasta `brand/`), exibido no Home Assistant e no HACS.
 
 ### Corrigido
+- Dashboard do Grafana: as tabelas "Saúde por site" e "Checagens em atenção ou crítico" podiam mostrar um valor antigo depois de atualizar a integração (cada versão gera uma série nova e o `last()` não ordenava por tempo).
 - Concordância no singular: "1 atualização pendente" e "1 entidade indisponível".
 
 ## [0.1.3] - 2026-11-06
