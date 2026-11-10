@@ -7,7 +7,7 @@ Every reason states the level, what was measured and which limits apply, e.g.
 from __future__ import annotations
 
 from .models import CheckResult, HealthLevel
-from .thresholds import Threshold
+from .thresholds import SYSTEM_LOG_MIN_SOURCES, Threshold
 
 LABELS: dict[str, str] = {
     "integrations": "Integrações com falha",
@@ -57,7 +57,10 @@ def limits_text(key: str, threshold: Threshold, unit: str | None) -> str:
     if threshold.atencao is not None:
         parts.append(f"atenção a partir de {format_limit(key, threshold.atencao, unit)}")
     if threshold.critico is not None:
-        parts.append(f"crítico a partir de {format_limit(key, threshold.critico, unit)}")
+        critico = f"crítico a partir de {format_limit(key, threshold.critico, unit)}"
+        if key == "system_log":
+            critico += f" vindos de {SYSTEM_LOG_MIN_SOURCES} ou mais origens"
+        parts.append(critico)
     return ", ".join(parts)
 
 

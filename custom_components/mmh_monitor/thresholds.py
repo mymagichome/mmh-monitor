@@ -51,6 +51,11 @@ class Threshold:
         return HealthLevel.OK
 
 
+# The log is critical only when the errors come from at least this many
+# different loggers: one broken template repeating every few seconds is a
+# single problem, not many.
+SYSTEM_LOG_MIN_SOURCES = 3
+
 DEFAULT_THRESHOLDS: dict[str, Threshold] = {
     "integrations": Threshold(atencao=1, critico=3),
     "unavailable_entities": Threshold(atencao=5, critico=15),  # percent

@@ -5,6 +5,12 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.1.6] - 2026-11-10
+
+### Alterado
+- Erros no log: o nível continua seguindo o número de erros do ciclo, mas só fica crítico quando eles vêm de 3 ou mais origens (loggers) diferentes. Um único erro repetitivo — por exemplo, um template recebendo `unavailable` a cada poucos segundos — fica em atenção.
+- A mensagem diz de onde vêm os erros ("…, todos de <logger>" ou "…, de N origens") e os motivos citam a regra das origens. `details` ganha `error_sources` e `top_error_sources`.
+
 ## [0.1.5] - 2026-11-08
 
 ### Corrigido
@@ -71,7 +77,8 @@ Primeira versão, para o piloto.
 - README em pt-BR: instalação, configuração, entidades, checagens, limites, esquema de dados, diagnóstico e segurança.
 - Guia do servidor central (`docs/central.md`), dashboard do Grafana (`docs/grafana/`) e exemplo de limites (`docs/thresholds.example.json`).
 
-[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.5...HEAD
+[Não lançado]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/mymagichome/mmh-monitor/compare/v0.1.2...v0.1.3

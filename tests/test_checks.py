@@ -248,10 +248,23 @@ async def test_system_log(hass: HomeAssistant) -> None:
         assert result.value == 0
         assert result.level is OK
 
+        # One source repeating the same error is a single problem: attention.
         for _ in range(20):
             log.error("bad")
         result = (await check.async_run(DEFAULT_THRESHOLDS))[0]
+        assert result.level is ATENCAO
+        assert result.details["error_sources"] == 1
+        assert result.message == "20 erros e 0 avisos no log, todos de custom.noisy"
+
+        # Many errors from several sources: critical.
+        for _ in range(18):
+            log.error("bad")
+        logging.getLogger("custom.other").error("other")
+        logging.getLogger("custom.third").error("third")
+        result = (await check.async_run(DEFAULT_THRESHOLDS))[0]
         assert result.level is CRITICO
+        assert result.message == "20 erros e 0 avisos no log, de 3 origens"
+        assert result.details["top_error_sources"][0] == {"logger": "custom.noisy", "count": 18}
     finally:
         await check.async_shutdown()
     assert check._handler not in logging.getLogger().handlers
