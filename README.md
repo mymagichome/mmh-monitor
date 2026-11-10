@@ -129,7 +129,7 @@ Logo após o HA iniciar, as checagens que dependem de outras integrações (`int
 | `load_1m` | Carga de 1 minuto dividida pelo número de núcleos | 1.5 | 3.0 |
 | `host_uptime` | Segundos desde o boot do host | — | — |
 | `ha_uptime` | Segundos desde o início do HA (quedas = reinícios) | — | — |
-| `system_log` | Erros registrados no log desde a coleta anterior | 5 | 20 |
+| `system_log` | Erros registrados no log desde a coleta anterior (não é o log acumulado do HA: limpar o log não muda nada). Crítico só se os erros vierem de 3 ou mais origens; um único erro repetitivo fica em atenção | 5 | 20 |
 | `recorder` | Tamanho do banco SQLite em MB (MariaDB/PostgreSQL: não monitorado) | 2000 | 5000 |
 | `updates` | Atualizações pendentes (`details` indica se o HA Core está entre elas) | 1 | nunca |
 | `backup` | Horas desde o último backup (qualquer origem). Crítico também se a última tentativa automática falhou | 384 (16 dias) | 720 (30 dias) |

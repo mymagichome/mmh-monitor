@@ -38,6 +38,13 @@ def test_limits_are_readable() -> None:
     assert limits_text("zigbee", Threshold(), None) == ""
 
 
+def test_log_limits_mention_sources() -> None:
+    """The log is only critical with several sources, and the reason says so."""
+    assert limits_text("system_log", DEFAULT_THRESHOLDS["system_log"], None) == (
+        "atenção a partir de 5, crítico a partir de 20 vindos de 3 ou mais origens"
+    )
+
+
 def test_describe_without_value_or_limits() -> None:
     """A check without a number only states the level and the message."""
     r = CheckResult("zigbee", None, None, C, "Coordenador Zigbee offline")
